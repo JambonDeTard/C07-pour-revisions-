@@ -1,97 +1,124 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_split.c                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: avillard <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/23 10:11:28 by avillard          #+#    #+#             */
-/*   Updated: 2022/08/23 10:47:24 by avillard         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include <stdio.h>
+#include <stdlib.h>
 
-#include<stdlib.h>
-//meme chose que malloc mais peut retourner une valeur nulle
-void	*ft_calloc(size_t nmemb, size_t size)
+int ft_check_char(char c, char *split)
 {
-	void	*p;
+	int i;
 
-	p = malloc(nmemb * size);
-	if (!p)
-		return (NULL);
-	ft_bzero(p, nmemb * size);
-	return (p);
+	i = 0;
+	while (split[i])
+	{
+		if (c == split[i])
+			return (1);
+		i++;
+	}
+	return (0);
 }
 
-//compte les blocs separe de *charset et retoune le nombre de bloc trouvé
-static size_t	ft_bloccount(char const *s, char *charset)
+int ft_count_split(char *str, char *split)
 {
-	size_t	blks;
-	size_t	word;
-	int		i;
+	int count;
+	int i;
 
-	blks = 0;
-	word = 0;
-	while (*s != '\0')
+	count = 0;
+	i = 0;
+	while (str[i])
 	{
-		i = 0;
-		while (charset[i])
+		while (str[i] && ft_check_char(str[i], split) == 1)
+			i++;
+		while (str[i] && ft_check_char(str[i], split) == 0)
+			i++;
+		count++;
+	}
+	if (ft_check_char(str[i - 1], split) == 1)
+		count--;
+	return (count);
+}
+
+int *ft_str_len(char *str, char *split)
+{
+	int *str_len;
+	int temp_count;
+	int i;
+	int j;
+
+	str_len = (int *)malloc((sizeof(int) * ft_count_split(str, split)));
+	temp_count = 0;
+	j = 0;
+	i = 0;
+	while (str[i])
+	{
+		temp_count++;
+		if (ft_check_char(str[i], split) == 1)
 		{
-			if (*s == charset[i])
-				word = 0;
-			else if ((*s != charset[i]) && (word == 0))
-			{
-			word = 1;
-				++blks;
-			}
-			++s;
+			str_len[j] = temp_count - 1;
+			j++;
+			temp_count = 0;
+		}
+		i++;
+	}
+	str_len[j] = temp_count;
+	return (str_len);
+}
+
+char **alloc_mem_to_tab(char *str, char *charset)
+{
+	char **tab;
+	int *strs_len;
+	int i;
+
+	strs_len = ft_str_len(str, charset);
+	if (!(tab = (char **)malloc(sizeof(char *) * (ft_count_split(str, charset)) + 1)))
+		return (0);
+	i = 0;
+	while (i < ft_count_split(str, charset))
+	{
+		tab[i] = (char *)malloc(sizeof(char) * strs_len[i]);
+		i++;
+	}
+	return (tab);
+}
+
+char **ft_split(char *str, char *charset)
+{
+	char **tab;
+	int i;
+	int j;
+	int k;
+
+	tab = alloc_mem_to_tab(str, charset);
+	k = 0;
+	i = 0;
+	while (k < ft_count_split(str, charset))
+	{
+		while (str[i] && ft_check_char(str[i], charset) == 1)
+			i++;
+		j = 0;
+		while (ft_check_char(str[i], charset) == 0 && str[i])
+		{
+			tab[k][j] = str[i];
+			j++;
 			i++;
 		}
+		k++;
 	}
-	return (blks);
+	tab[k] = 0;
+	return (tab);
 }
 
-//strlen mais qui s arrete a \0 ou a la premiere valeur de *charset
-static size_t	ft_strclen(const char *s, char *charset)
+int main(void)
 {
-	size_t	int_len;
+	char *str = "mmmmmmmmHello my name is gigachad";
+	char *split = " maeiou";
+	char **tab;
+	int i;
 
-	int_len = 0;
-	while (s[int_len] != '\0' && s[int_len] != charset[0])
-		int_len++;
-	return (int_len);
-}
-
-//separe chaque grp de mots avec le str *charset
-static char	**ft_split_words(char **arr, const char *s, const char *charset)
-{
-	int	pos;
-	int	blk_len;
-
-	pos = 0;
-	while (*s)
+	tab = ft_split(str, split);
+	i = 0;
+	while (i < ft_count_split(str, split))
 	{
-		while (*s && *s == c)
-			s++;
-		if (*s)
-		{
-			blk_len = ft_strclen(s, charset);
-			arr[pos] = (char *)ft_calloc(blk_len + 1, sizeof(char));
-			if (!arr[pos])
-				return (NULL);
-			ft_memcpy(arr[pos], s, (size_t)blk_len);
-			s += blk_len;
-			pos++;
-		}
+		printf("%s\n", tab[i]);
+		i++;
 	}
-	return (arr);
-}
-
-char	**ft_split(char *str, char *charset)
-{
-	char	**arr;
-
-	arr = (char **)ft_calloc(ft_bloccount(str, charset) + 1, sizeof(char *));
-	arr = ft_split_words(arr, s, c);
-	return (arr);
+	return (0);
 }
