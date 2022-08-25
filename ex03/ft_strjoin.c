@@ -1,78 +1,73 @@
-#include<stdlib.h>
+#include <stdlib.h>
 
-int ft_strlen(char *str)
+int		ft_str_length(char *str)
 {
-	int i;
+	int	index;
 
-	i = 0;
-	while (str[i])
-		i++;
-	return (i);
+	index = 0;
+	while (str[index])
+		index++;
+	return (index);
 }
 
-int ft_sep_len(char *sep, int size)
+char	*ft_strcpy(char *dest, char *src)
 {
-	int tot_len;
+	int index;
 
-	tot_len = ft_strlen(sep) * (size - 1);
-	return (tot_len);
-}
-
-int ft_strs_len(char **strs, int size)
-{
-	int tot_len;
-	int i;
-
-	tot_len = 0;
-	i = 0;
-	while (i < size)
+	index = 0;
+	while (src[index] != '\0')
 	{
-		tot_len += ft_strlen(strs[i]);
-		i++;
+		dest[index] = src[index];
+		index++;
 	}
-	return (tot_len);
-}
-
-char *ft_strcat(char *dest, char *src)
-{
-	int i;
-	int j;
-
-	i = 0;
-	while (dest[i])
-		i++;
-	j = 0;
-	while (src[j])
-	{
-		dest[i] = src[j];
-		j++;
-		i++;
-	}
-	dest[i] = '\0';
+	dest[index] = '\0';
 	return (dest);
 }
 
-char *ft_strjoin(int size, char **strs, char *sep)
+int		ft_compute_final_length(char **strings, int size, int sep_length)
 {
-	char    *final_string;
-	int     tot_len;
-	int     i;
+	int	final_length;
+	int	index;
 
-	tot_len = ft_sep_len(sep, size) + ft_strs_len(strs, size);
-	final_string = (char *)malloc(sizeof(char) * tot_len);
-	i = 0;
-	while (i < size)
+	final_length = 0;
+	index = 0;
+	while (index < size)
 	{
-		if (i == (size - 1))
-		{
-			ft_strcat(final_string, strs[i]);
-			return (final_string);
-		}
-		ft_strcat(final_string, strs[i]);
-		ft_strcat(final_string, sep);
-		i++;
+		final_length += ft_str_length(strings[index]);
+		final_length += sep_length;
+		index++;
 	}
-	return (0);
+	final_length -= sep_length;
+	return (final_length);
+}
+
+char	*ft_strjoin(int size, char **strs, char *sep)
+{
+	int		full_length;
+	int		index;
+	char	*read_head;
+	char	*string;
+
+	if (size == 0)
+		return ((char *)malloc(sizeof(char)));
+	full_length = ft_compute_final_length(strs, size, ft_str_length(sep));
+	if (!(string = (char *)malloc((full_length + 1) * sizeof(char))))
+		return (0);
+	read_head = string;
+	index = 0;
+	while (index < size)
+	{
+		ft_strcpy(read_head, strs[index]);
+		read_head += ft_str_length(strs[index]);
+		if (index < size - 1)
+		{
+			ft_strcpy(read_head, sep);
+			read_head += ft_str_length(sep);
+		}
+		index++;
+	}
+	*read_head = '\0';
+	return (string);
 }
 /*
 int main(void)

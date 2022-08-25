@@ -1,35 +1,59 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_convert_base2.c                                 :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: avillard <marvin@42.fr>                    +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2022/08/21 13:54:23 by avillard          #+#    #+#             */
-/*   Updated: 2022/08/23 11:05:55 by avillard         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
+#include <stdbool.h>
 
-int	ft_strlen(char *str)
+int		ft_str_length(char *str)
 {
-	int		count;
+	int	index;
 
-	count = 0;
-	while (str[count] != '\0')
-		count++;
-	return (count);
+	index = 0;
+	while (str[index])
+		index++;
+	return (index);
 }
 
-int	ft_repeat_char(char c, char *base)
+bool	is_space(char c)
 {
-	int	i;
+	return (c == '\t' || c == '\n' || c == '\v' || c == '\f'
+		|| c == '\r' || c == ' ');
+}
 
-	i = 0;
-	while (base[i])
+bool	is_base_valid(char *str)
+{
+	char	*curr;
+	int		index;
+	int		jndex;
+
+	curr = str;
+	if (str == 0 || ft_str_length(str) <= 1)
+		return (false);
+	while (*curr)
 	{
-		if (c == base[i])
-			return (i);
-		i++;
+		if (is_space(*curr) || *curr == '+' || *curr == '-')
+			return (false);
+		curr++;
 	}
-	return (-1);
+	index = 0;
+	while (index < curr - str)
+	{
+		jndex = index + 1;
+		while (jndex < curr - str)
+			if (str[index] == str[jndex++])
+				return (false);
+		index++;
+	}
+	return (true);
+}
+
+int		compute_number_length(unsigned int number, int radix, bool negative)
+{
+	unsigned int	length;
+
+	length = negative ? 1 : 0;
+	while (true)
+	{
+		length++;
+		if (number / radix == 0)
+			break ;
+		number /= radix;
+	}
+	return (length);
 }
